@@ -198,92 +198,128 @@
 //   );
 // };
 
-// export default Signup;
-
 import React, { useState } from "react";
-import { Container, Card, Form, Button, Toast } from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { useNavigate, Link } from "react-router-dom";
+import { Container, Form, Button, Card } from "react-bootstrap";
 
 const Signup = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [toastMessage, setToastMessage] = useState("");
-  const [showToast, setShowToast] = useState(false);
-
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const handleSignup = async (e) => {
     e.preventDefault();
-
     try {
-      const res = await fetch("http://127.0.0.1:8000/signup/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ first_name: firstName, last_name: lastName, email, phone, password }),
+      const res = await axios.post("http://127.0.0.1:8000/api/signup/", {
+        first_name: firstName,
+        last_name: lastName,
+        username,
+        phone,
+        email,
+        password,
       });
 
-      const data = await res.json();
-
-      if (data.success) {
-        setToastMessage("Account created! Please login.");
-        setShowToast(true);
-        setTimeout(() => navigate("/login"), 2000);
-      } else {
-        setToastMessage(data.message || "Signup failed");
-        setShowToast(true);
-      }
+      alert(res.data.message);
+      navigate("/login");
     } catch (err) {
-      setToastMessage("Server error, try again.");
-      setShowToast(true);
+      setError(err.response?.data?.error || "Signup failed");
     }
   };
 
   return (
-    <Container className="py-5" style={{ minHeight: "80vh" }}>
-      <Card className="mx-auto" style={{ maxWidth: "500px" }}>
-        <Card.Body className="p-4">
-          <h2 className="text-center text-danger mb-3">Sign Up</h2>
-          <Form onSubmit={handleSignup}>
-            <Form.Group className="mb-2">
-              <Form.Label>First Name</Form.Label>
-              <Form.Control value={firstName} onChange={(e) => setFirstName(e.target.value)} required />
-            </Form.Group>
-            <Form.Group className="mb-2">
-              <Form.Label>Last Name</Form.Label>
-              <Form.Control value={lastName} onChange={(e) => setLastName(e.target.value)} required />
-            </Form.Group>
-            <Form.Group className="mb-2">
-              <Form.Label>Email</Form.Label>
-              <Form.Control type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-            </Form.Group>
-            <Form.Group className="mb-2">
-              <Form.Label>Phone</Form.Label>
-              <Form.Control value={phone} onChange={(e) => setPhone(e.target.value)} required />
-            </Form.Group>
-            <Form.Group className="mb-2">
-              <Form.Label>Password</Form.Label>
-              <Form.Control type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-            </Form.Group>
-            <Button type="submit" className="w-100 btn btn-danger mt-2">
-              Sign Up
-            </Button>
-          </Form>
-        </Card.Body>
-      </Card>
+    <Container className="d-flex justify-content-center align-items-center vh-100">
+      <Card className="p-4 shadow-lg" style={{ width: "28rem", borderRadius: "1rem" }}>
+        <h3 className="text-center mb-3 text-danger fw-bold">Create Account</h3>
 
-      {showToast && (
-        <Toast
-          style={{ position: "fixed", top: 20, right: 20 }}
-          onClose={() => setShowToast(false)}
-          autohide
-          delay={3000}
-        >
-          <Toast.Body>{toastMessage}</Toast.Body>
-        </Toast>
-      )}
+        <Form onSubmit={handleSignup}>
+          <Form.Group className="mb-3">
+            <Form.Label>First Name</Form.Label>
+            <Form.Control
+              type="text"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              placeholder="Enter first name"
+              required
+            />
+          </Form.Group>
+
+          <Form.Group className="mb-3">
+            <Form.Label>Last Name</Form.Label>
+            <Form.Control
+              type="text"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              placeholder="Enter last name"
+              required
+            />
+          </Form.Group>
+
+          <Form.Group className="mb-3">
+            <Form.Label>Username</Form.Label>
+            <Form.Control
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="Enter username"
+              required
+            />
+          </Form.Group>
+
+          <Form.Group className="mb-3">
+            <Form.Label>Phone Number</Form.Label>
+            <Form.Control
+              type="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="Enter phone number"
+              required
+            />
+          </Form.Group>
+
+          <Form.Group className="mb-3">
+            <Form.Label>Email</Form.Label>
+            <Form.Control
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter email"
+              required
+            />
+          </Form.Group>
+
+          <Form.Group className="mb-3">
+            <Form.Label>Password</Form.Label>
+            <Form.Control
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Enter password"
+              required
+            />
+          </Form.Group>
+
+          {error && <p className="text-danger text-center">{error}</p>}
+
+          <Button variant="danger" type="submit" className="w-100 mt-2">
+            Sign Up
+          </Button>
+        </Form>
+
+        <div className="text-center mt-3">
+          <p>
+            Already have an account?{" "}
+            <Link to="/login" className="text-danger fw-semibold">
+              Login
+            </Link>
+          </p>
+        </div>
+      </Card>
     </Container>
   );
 };

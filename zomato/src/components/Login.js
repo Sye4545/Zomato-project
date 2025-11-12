@@ -160,89 +160,114 @@
 //     </Container>
 //   );
 // };
-
-// export default Login;
 import React, { useState } from "react";
-import { Container, Card, Form, Button, Toast } from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { useNavigate, Link } from "react-router-dom";
 
 const Login = () => {
-  const [emailOrPhone, setEmailOrPhone] = useState("");
-  const [password, setPassword] = useState("");
-  const [toastMessage, setToastMessage] = useState("");
-  const [showToast, setShowToast] = useState(false);
-
   const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    username: "",
+    password: "",
+  });
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = async (e) => {
+  // Handle input changes
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  // Handle login form submission
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
+    setLoading(true);
 
     try {
-      const res = await fetch("http://127.0.0.1:8000/login/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email_or_phone: emailOrPhone, password }),
-      });
+      const response = await axios.post(
+        "http://127.0.0.1:8000/api/login/",
+        formData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-      const data = await res.json();
+      alert("✅ Login successful!");
+      console.log("Response:", response.data);
 
-      if (data.success) {
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("user", JSON.stringify(data.user));
-        setToastMessage("Login successful!");
-        setShowToast(true);
-        setTimeout(() => navigate("/restaurants"), 1500);
-      } else {
-        setToastMessage(data.message || "Login failed");
-        setShowToast(true);
-      }
+      // Optionally store user data
+      localStorage.setItem("username", response.data.username);
+
+      // Redirect to homepage
+      navigate("/");
     } catch (err) {
-      setToastMessage("Server error, try again.");
-      setShowToast(true);
+      console.error("Login error:", err);
+      if (err.response) {
+        setError(err.response.data.error || "Invalid credentials");
+      } else {
+        setError("Server not reachable");
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <Container className="py-5" style={{ minHeight: "80vh" }}>
-      <Card className="mx-auto" style={{ maxWidth: "400px" }}>
-        <Card.Body className="p-4">
-          <h2 className="text-center text-danger mb-3">Login</h2>
-          <Form onSubmit={handleLogin}>
-            <Form.Group className="mb-3">
-              <Form.Label>Email or Phone</Form.Label>
-              <Form.Control
-                value={emailOrPhone}
-                onChange={(e) => setEmailOrPhone(e.target.value)}
-                required
-              />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Password</Form.Label>
-              <Form.Control
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </Form.Group>
-            <Button type="submit" className="w-100 btn btn-danger">
-              Login
-            </Button>
-          </Form>
-        </Card.Body>
-      </Card>
+    <div className="d-flex justify-content-center align-items-center vh-100 bg-light">
+      <div className="card shadow p-4" style={{ width: "380px" }}>
+        <h3 className="text-center mb-3">Login</h3>
+        {error && <div className="alert alert-danger">{error}</div>}
 
-      {showToast && (
-        <Toast
-          style={{ position: "fixed", top: 20, right: 20 }}
-          onClose={() => setShowToast(false)}
-          autohide
-          delay={3000}
-        >
-          <Toast.Body>{toastMessage}</Toast.Body>
-        </Toast>
-      )}
-    </Container>
+        <form onSubmit={handleSubmit}>
+          <div className="mb-3">
+            <label className="form-label">Username</label>
+            <input
+              type="text"
+              name="username"
+              className="form-control"
+              placeholder="Enter your username"
+              value={formData.username}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <div className="mb-3">
+            <label className="form-label">Password</label>
+            <input
+              type="password"
+              name="password"
+              className="form-control"
+              placeholder="Enter your password"
+              value={formData.password}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <button
+            type="submit"
+            className="btn btn-primary w-100"
+            disabled={loading}
+          >
+            {loading ? "Logging in..." : "Login"}
+          </button>
+        </form>
+
+        <p className="text-center mt-3">
+          Don’t have an account?{" "}
+          <Link to="/signup" className="text-decoration-none">
+            Sign up
+          </Link>
+        </p>
+      </div>
+    </div>
   );
 };
 
