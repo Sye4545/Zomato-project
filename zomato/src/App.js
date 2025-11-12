@@ -10,9 +10,7 @@ import Cart from './components/Cart.js';
 import Login from './components/Login.js';
 import Signup from './components/Signup.js';
 import PaymentGateway from './components/PaymentGateway.js';
-
 import "./App.css";
-
 
 
 function App() {
@@ -37,3 +35,4 @@ function App() {
 }
 
 export default App;
+
