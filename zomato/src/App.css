@@ -1,0 +1,63 @@
+
+body {
+  background-color: #fafafa;
+}
+
+.card img {
+  height: auto;
+  max-height: 250px;
+  width: 100%;
+  object-fit: cover;
+}
+
+
+@media (max-width: 768px) {
+  .card img {
+    max-height: 200px;
+  }
+
+  .home-background {
+    background-attachment: scroll;
+    min-height: 100vh;
+  }
+
+  
+  .fixed-bottom-cart {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 1000 !important;
+    border-radius: 15px 15px 0 0 !important;
+    max-height: 50vh; 
+    overflow-y: auto;
+  }
+}
+
+.home-background {
+  background-image: url('https://c4.wallpaperflare.com/wallpaper/650/328/54/food-beautiful-backgrounds-desktop-wallpaper-preview.jpg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeInZoom 2s ease-in-out;
+}
+
+.home-background h1,
+.home-background p {
+  color: white;
+}
+
+@keyframes fadeInZoom {
+  0% {
+    opacity: 0;
+    transform: scale(1.1);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
